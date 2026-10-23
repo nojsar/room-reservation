@@ -27,6 +27,50 @@ export interface User {
   activeReservationCount: number;
 }
 
+export const RESERVATION_STATUSES = ['Booked', 'Completed', 'Cancelled'] as const;
+export type ReservationStatus = (typeof RESERVATION_STATUSES)[number];
+
+export interface Reservation {
+  id: number;
+  roomId: number;
+  roomName: string;
+  organizerId: number;
+  organizerName: string;
+  title: string;
+  start: string;
+  end: string;
+  endedEarlyAt: string | null;
+  cancelledAt: string | null;
+  attendees: number;
+  status: ReservationStatus;
+  canEdit: boolean;
+  canCancel: boolean;
+  canEndEarly: boolean;
+}
+
+export interface ReservationFilter {
+  roomId?: number;
+  organizerId?: number;
+  status?: ReservationStatus;
+  /** ISO date-times. */
+  from?: string;
+  to?: string;
+}
+
+export interface SaveReservationRequest {
+  roomId: number;
+  organizerId: number;
+  title: string;
+  start: string;
+  end: string;
+  attendees: number;
+}
+
+export interface BookingSettings {
+  maxDurationDays: number;
+  maxDaysAhead: number;
+}
+
 export interface ApiErrorItem {
   code: string;
   message: string;

@@ -1,6 +1,14 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { request, toQueryString } from './client';
-import type { Room, RoomFilter, User } from './types';
+import type {
+  BookingSettings,
+  Reservation,
+  ReservationFilter,
+  Room,
+  RoomFilter,
+  SaveReservationRequest,
+  User,
+} from './types';
 
 // React Query keeps server data in a cache, tracks loading and error states,
 // and refetches when a query key (for example the filters) changes.
@@ -27,4 +35,50 @@ export function useFloors() {
 
 export function useUsers() {
   return useQuery({ queryKey: ['users'], queryFn: () => request<User[]>('/users') });
+}
+
+export function useReservations(filter: ReservationFilter) {
+  return useQuery({
+    queryKey: ['reservations', filter],
+    queryFn: () => request<Reservation[]>(`/reservations${toQueryString({ ...filter })}`),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useBookingSettings() {
+  return useQuery({
+    queryKey: ['settings', 'booking'],
+    queryFn: () => request<BookingSettings>('/settings/booking'),
+    staleTime: Infinity,
+  });
+}
+
+/** After any change to a reservation, lists that depend on reservations are loaded again. */
+function useReservationMutation<TVariables>(mutationFn: (variables: TVariables) => Promise<Reservation>) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['room-usage'] });
+    },
+  });
+}
+
+export function useSaveReservation() {
+  return useReservationMutation(({ id, body }: { id?: number; body: SaveReservationRequest }) =>
+    request<Reservation>(id ? `/reservations/${id}` : '/reservations', {
+      method: id ? 'PUT' : 'POST',
+      body: JSON.stringify(body),
+    }),
+  );
+}
+
+export function useCancelReservation() {
+  return useReservationMutation((id: number) => request<Reservation>(`/reservations/${id}/cancel`, { method: 'POST' }));
+}
+
+export function useEndReservation() {
+  return useReservationMutation((id: number) => request<Reservation>(`/reservations/${id}/end`, { method: 'POST' }));
 }

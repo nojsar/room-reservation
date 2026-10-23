@@ -1,11 +1,13 @@
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
+import { ReservationsPage } from './pages/ReservationsPage';
 import { RoomsPage } from './pages/RoomsPage';
 import { UsersPage } from './pages/UsersPage';
 
 const NAV_ITEMS = [
   { to: '/rooms', label: 'Rooms' },
+  { to: '/reservations', label: 'Reservations' },
   { to: '/users', label: 'Users' },
 ];
 
@@ -40,6 +42,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/rooms" replace />} />
           <Route path="/rooms" element={<RoomsPage />} />
+          <Route path="/reservations" element={<ReservationsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="*" element={<Navigate to="/rooms" replace />} />
         </Routes>

@@ -5,6 +5,18 @@ import react from '@vitejs/plugin-react';
 // ASP.NET back end, so no CORS setup is needed.
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        // Split large libraries into their own files so the browser can cache them separately.
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'],
+          mui: ['@mui/material', '@emotion/react', '@emotion/styled'],
+          pickers: ['@mui/x-date-pickers', 'dayjs'],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: {

@@ -34,7 +34,7 @@ public sealed class SaveReservationRequest
     public int OrganizerId { get; set; }
 
     [Required(ErrorMessage = "Enter a meeting title.")]
-    [StringLength(200, MinimumLength = 1, ErrorMessage = "The title must be 1 to 200 characters long.")]
+    [StringLength(200, ErrorMessage = "The title can be at most 200 characters long.")]
     public string Title { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Choose a start time.")]

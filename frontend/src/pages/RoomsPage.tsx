@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFloors, useRooms } from '../api/queries';
 import { EQUIPMENT, type Equipment } from '../api/types';
 import { EQUIPMENT_LABELS, EquipmentChips } from '../components/EquipmentChips';
@@ -37,6 +38,7 @@ export function RoomsPage() {
     floor: floor === '' ? undefined : floor,
   });
   const floors = useFloors();
+  const navigate = useNavigate();
 
   const hasFilters = minCapacity !== '' || equipment.length > 0 || floor !== '';
 
@@ -115,12 +117,13 @@ export function RoomsPage() {
                 <TableCell>Floor / location</TableCell>
                 <TableCell>Equipment</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
               {rooms.data?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6}>
+                  <TableCell colSpan={7}>
                     <Typography color="text.secondary">No rooms match these filters.</Typography>
                   </TableCell>
                 </TableRow>
@@ -148,6 +151,13 @@ export function RoomsPage() {
                       color={room.isActive ? 'success' : 'default'}
                       variant={room.isActive ? 'filled' : 'outlined'}
                     />
+                  </TableCell>
+                  <TableCell align="right">
+                    {room.isActive && (
+                      <Button size="small" variant="outlined" onClick={() => navigate(`/reservations?new=1&roomId=${room.id}`)}>
+                        Book
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
