@@ -1,0 +1,14 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// In development the front end calls /api on its own origin and Vite forwards the call to the
+// ASP.NET back end, so no CORS setup is needed.
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': 'http://localhost:5080',
+    },
+  },
+});

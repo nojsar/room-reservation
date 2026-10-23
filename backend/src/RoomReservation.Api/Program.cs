@@ -1,13 +1,30 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoomReservation.Api.Data;
+using RoomReservation.Api.Dtos;
 using RoomReservation.Api.Options;
+using RoomReservation.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+// Requests that cannot even be read (bad JSON, wrong types) get the same error shape as rule violations.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(entry => entry.Value is { Errors.Count: > 0 })
+            .SelectMany(entry => entry.Value!.Errors.Select(error => new ErrorDto(
+                "INVALID_INPUT",
+                string.IsNullOrEmpty(entry.Key) ? error.ErrorMessage : $"{entry.Key}: {error.ErrorMessage}")))
+            .ToList();
+        return new BadRequestObjectResult(new ErrorResponse(errors));
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -17,6 +34,9 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDataba
 builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.Configure<BookingOptions>(builder.Configuration.GetSection(BookingOptions.SectionName));
+
+builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
