@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RoomReservation.Api.Booking;
+using RoomReservation.Api.Booking.Rules;
 using RoomReservation.Api.Data;
 using RoomReservation.Api.Dtos;
 using RoomReservation.Api.Options;
@@ -35,8 +37,20 @@ builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.Configure<BookingOptions>(builder.Configuration.GetSection(BookingOptions.SectionName));
 
+// Booking rules R1 to R7. They are stateless, so one instance of each is enough. The validator
+// receives all of them as IEnumerable<IBookingRule> and reports errors in this order.
+builder.Services.AddSingleton<IBookingRule, MaxDurationRule>();
+builder.Services.AddSingleton<IBookingRule, NoRoomOverlapRule>();
+builder.Services.AddSingleton<IBookingRule, NoOrganizerOverlapRule>();
+builder.Services.AddSingleton<IBookingRule, ValidTimeRangeRule>();
+builder.Services.AddSingleton<IBookingRule, CapacityRule>();
+builder.Services.AddSingleton<IBookingRule, BookingHorizonRule>();
+builder.Services.AddSingleton<IBookingRule, ActiveRoomRule>();
+builder.Services.AddScoped<IBookingValidator, BookingValidator>();
+
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 
 var app = builder.Build();
 

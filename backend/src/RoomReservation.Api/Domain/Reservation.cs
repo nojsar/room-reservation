@@ -1,3 +1,5 @@
+using RoomReservation.Api.Common;
+
 namespace RoomReservation.Api.Domain;
 
 public class Reservation
@@ -36,5 +38,44 @@ public class Reservation
         }
 
         return EffectiveEnd <= now ? ReservationStatus.Completed : ReservationStatus.Booked;
+    }
+
+    public bool HasStarted(DateTimeOffset now) => Start <= now;
+
+    /// <summary>True when this reservation holds the time between start (inclusive) and end (exclusive).
+    /// Meetings that touch, like 9:00-10:00 and 10:00-11:00, do not overlap.</summary>
+    public bool Overlaps(DateTimeOffset start, DateTimeOffset end) => Start < end && start < EffectiveEnd;
+
+    /// <summary>Upcoming booked meetings can be changed or cancelled.</summary>
+    public bool IsUpcoming(DateTimeOffset now) => GetStatus(now) == ReservationStatus.Booked && !HasStarted(now);
+
+    /// <summary>A booked meeting that has started and not ended yet.</summary>
+    public bool IsInProgress(DateTimeOffset now) => GetStatus(now) == ReservationStatus.Booked && HasStarted(now);
+
+    public Error? Cancel(DateTimeOffset now)
+    {
+        if (GetStatus(now) != ReservationStatus.Booked)
+        {
+            return new Error("RESERVATION_NOT_ACTIVE", "Only booked reservations can be cancelled.");
+        }
+
+        if (HasStarted(now))
+        {
+            return new Error("MEETING_ALREADY_STARTED", "This meeting has already started. End it early instead of cancelling it.");
+        }
+
+        CancelledAt = now;
+        return null;
+    }
+
+    public Error? EndEarly(DateTimeOffset now)
+    {
+        if (!IsInProgress(now))
+        {
+            return new Error("MEETING_NOT_IN_PROGRESS", "Only a meeting that is in progress can be ended early.");
+        }
+
+        EndedEarlyAt = now;
+        return null;
     }
 }

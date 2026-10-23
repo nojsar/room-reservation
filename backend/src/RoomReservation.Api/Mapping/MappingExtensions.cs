@@ -27,6 +27,24 @@ public static class MappingExtensions
 
     public static string FullName(this User user) => $"{user.FirstName} {user.LastName}";
 
+    /// <summary>Needs Room and Organizer loaded. The status and allowed actions depend on the current time.</summary>
+    public static ReservationDto ToDto(this Reservation reservation, DateTimeOffset now) => new(
+        reservation.Id,
+        reservation.RoomId,
+        reservation.Room.Name,
+        reservation.OrganizerId,
+        reservation.Organizer.FullName(),
+        reservation.Title,
+        reservation.Start,
+        reservation.End,
+        reservation.EndedEarlyAt,
+        reservation.CancelledAt,
+        reservation.Attendees,
+        reservation.GetStatus(now),
+        CanEdit: reservation.IsUpcoming(now),
+        CanCancel: reservation.IsUpcoming(now),
+        CanEndEarly: reservation.IsInProgress(now));
+
     /// <summary>Splits a flags value into its single items, e.g. Projector | Whiteboard becomes [Projector, Whiteboard].</summary>
     public static IReadOnlyList<Equipment> ToItems(this Equipment equipment) =>
         Enum.GetValues<Equipment>()
