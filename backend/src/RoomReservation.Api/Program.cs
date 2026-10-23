@@ -36,6 +36,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDataba
 builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.Configure<BookingOptions>(builder.Configuration.GetSection(BookingOptions.SectionName));
+builder.Services.Configure<UsageReportOptions>(builder.Configuration.GetSection(UsageReportOptions.SectionName));
 
 // Booking rules R1 to R7. They are stateless, so one instance of each is enough. The validator
 // receives all of them as IEnumerable<IBookingRule> and reports errors in this order.
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IBookingValidator, BookingValidator>();
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IRoomUsageReportService, RoomUsageReportService>();
 
 var app = builder.Build();
 

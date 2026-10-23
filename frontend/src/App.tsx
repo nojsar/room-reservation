@@ -3,12 +3,14 @@ import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/materi
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { ReservationsPage } from './pages/ReservationsPage';
 import { RoomsPage } from './pages/RoomsPage';
+import { UsagePage } from './pages/UsagePage';
 import { UsersPage } from './pages/UsersPage';
 
 const NAV_ITEMS = [
   { to: '/rooms', label: 'Rooms' },
   { to: '/reservations', label: 'Reservations' },
   { to: '/users', label: 'Users' },
+  { to: '/usage', label: 'Usage' },
 ];
 
 export function App() {
@@ -44,6 +46,7 @@ export function App() {
           <Route path="/rooms" element={<RoomsPage />} />
           <Route path="/reservations" element={<ReservationsPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/usage" element={<UsagePage />} />
           <Route path="*" element={<Navigate to="/rooms" replace />} />
         </Routes>
       </Container>

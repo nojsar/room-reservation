@@ -71,6 +71,28 @@ export interface BookingSettings {
   maxDaysAhead: number;
 }
 
+export interface RoomUsage {
+  roomId: number;
+  roomName: string;
+  floor: number;
+  isActive: boolean;
+  bookings: number;
+  cancellations: number;
+  endedEarly: number;
+  bookedHours: number;
+  usedHours: number;
+  usagePercent: number | null;
+  isOftenBookedButRarelyUsed: boolean;
+}
+
+export interface RoomUsageReport {
+  from: string;
+  to: string;
+  lowUsagePercent: number;
+  minBookings: number;
+  rooms: RoomUsage[];
+}
+
 export interface ApiErrorItem {
   code: string;
   message: string;

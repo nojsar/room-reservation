@@ -6,6 +6,7 @@ import type {
   ReservationFilter,
   Room,
   RoomFilter,
+  RoomUsageReport,
   SaveReservationRequest,
   User,
 } from './types';
@@ -50,6 +51,14 @@ export function useBookingSettings() {
     queryKey: ['settings', 'booking'],
     queryFn: () => request<BookingSettings>('/settings/booking'),
     staleTime: Infinity,
+  });
+}
+
+export function useRoomUsage(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['room-usage', from, to],
+    queryFn: () => request<RoomUsageReport>(`/reports/room-usage${toQueryString({ from, to })}`),
+    placeholderData: keepPreviousData,
   });
 }
 
